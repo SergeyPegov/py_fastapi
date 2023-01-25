@@ -35,8 +35,7 @@ def s_files(file_name,response: Response, files: List[UploadFile]):
         response.status_code = 415
         return uns_files
 
-    if not os.path.isdir('data'):
-        os.mkdir('data')
+
 
     dat = []
     for file in files:
@@ -56,7 +55,8 @@ def new_file(file_name, response: Response):
         return file_name + ".cvs"
 
 data_dir = 'data/' if os.environ.get('DATA_DIR') is None else os.environ.get('DATA_DIR')
-
+if not os.path.isdir('data'):
+    os.mkdir('data')
 def search(file_name):
     if os.path.isfile(data_dir + file_name + '.csv'):
         return data_dir + file_name + '.csv'
