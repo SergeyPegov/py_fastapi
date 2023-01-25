@@ -5,7 +5,6 @@ import pandas as pd
 import csv
 import os
 
-
 app = FastAPI()
 
 @app.post("/case_sensitive")
@@ -27,6 +26,7 @@ def dublic(q: list):
 @app.post("/upload/{file.name}")
 def s_files(file_name,response: Response, files: List[UploadFile]):
     uns_files = []
+    dat = []
     for file in files:
         if file.filename.partition('.')[-1] not in ["csv", "json"]:
             uns_files.append(file.filename)
@@ -35,16 +35,12 @@ def s_files(file_name,response: Response, files: List[UploadFile]):
         response.status_code = 415
         return uns_files
 
-
-
-    dat = []
     for file in files:
         dt_r = pd.read_csv(file.file, sep=';') if file.content_type == "text/csv" else pd.read_json(file.file)
         dat.append(dt_r)
         dt_r = pd.concat(dat, dt_r)
     dt_r = pd.concat(dat)
     writer_file(file_name,dt_r)
-
 
 @app.post("/load/{file_name}")
 def new_file(file_name, response: Response):
@@ -57,6 +53,7 @@ def new_file(file_name, response: Response):
 data_dir = 'data/' if os.environ.get('DATA_DIR') is None else os.environ.get('DATA_DIR')
 if not os.path.isdir('data'):
     os.mkdir('data')
+
 def search(file_name):
     if os.path.isfile(data_dir + file_name + '.csv'):
         return data_dir + file_name + '.csv'
@@ -72,5 +69,4 @@ def writer_file(filename, data):
         path = data_dir + filename + '.csv'
         f = open(path, 'w+')
         f.close()
-
         data.to_csv(path, sep=';')
